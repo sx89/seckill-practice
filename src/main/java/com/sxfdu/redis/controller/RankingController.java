@@ -25,7 +25,6 @@ public class RankingController {
     @ResponseBody
     @RequestMapping("/addScore")
     public String addRank(String uid, Integer score) {
-        System.err.println("即将添加score");
         rankingService.rankAdd(uid, score);
         return "success";
     }
