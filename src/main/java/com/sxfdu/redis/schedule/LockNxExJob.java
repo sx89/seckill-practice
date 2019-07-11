@@ -23,14 +23,14 @@ import java.util.concurrent.TimeUnit;
 public class LockNxExJob {
 
     private static final Logger logger = LoggerFactory.getLogger(LockNxExJob.class);
-    private static final String LOCK_PREFIX = "prefix_";
+    private static final String LOCK_PREFIX = "sx2_prefix_";
 
     @Autowired
     private RedisService redisService;
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @Scheduled(cron =  "0/5 * * * * *")
+//    @Scheduled(cron =  "0/5 * * * * *")
     public void lockJob() {
             String lockName = LOCK_PREFIX + "LockNxEXJob";
             ValueOperations valueOperations = redisTemplate.opsForValue();
