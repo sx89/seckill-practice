@@ -1,9 +1,28 @@
-# seckill-practice
-秒杀项目实战
+<!-- TOC -->
 
-## 分布锁实现方案分析
+- [1. seckill-practice](#1-seckill-practice)
+  - [1.1. 分布锁实现方案分析](#11-%E5%88%86%E5%B8%83%E9%94%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90)
+    - [1.1.1. redis分布式锁的使用场景](#111-redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF)
+    - [1.1.2. 面试分享高频大厂面试题之分布式系统高可用](#112-%E9%9D%A2%E8%AF%95%E5%88%86%E4%BA%AB%E9%AB%98%E9%A2%91%E5%A4%A7%E5%8E%82%E9%9D%A2%E8%AF%95%E9%A2%98%E4%B9%8B%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E9%AB%98%E5%8F%AF%E7%94%A8)
+  - [- 重启服务，看服务是否每次都获取锁失败](#%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%E7%9C%8B%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E6%AF%8F%E6%AC%A1%E9%83%BD%E8%8E%B7%E5%8F%96%E9%94%81%E5%A4%B1%E8%B4%A5)
+    - [1.1.3. 灾备切换Sentinel的使用](#113-%E7%81%BE%E5%A4%87%E5%88%87%E6%8D%A2Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8)
+      - [1.1.3.1. docker搭建redis主从集群](#1131-docker%E6%90%AD%E5%BB%BAredis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4)
+      - [1.1.3.2. docker 搭建redis-sentinel集群](#1132-docker-%E6%90%AD%E5%BB%BAredis-sentinel%E9%9B%86%E7%BE%A4)
+    - [1.1.4. 互联网高可用灾备以及Sentinel三大任务讲解](#114-%E4%BA%92%E8%81%94%E7%BD%91%E9%AB%98%E5%8F%AF%E7%94%A8%E7%81%BE%E5%A4%87%E4%BB%A5%E5%8F%8ASentinel%E4%B8%89%E5%A4%A7%E4%BB%BB%E5%8A%A1%E8%AE%B2%E8%A7%A3)
+    - [1.1.5. Redis高可用Sentinel故障转移原理](#115-Redis%E9%AB%98%E5%8F%AF%E7%94%A8Sentinel%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E5%8E%9F%E7%90%86)
 
-###  redis分布式锁的使用场景
+<!-- /TOC -->
+
+# 1. seckill-practice
+秒杀项目实战  
+
+难点:
++ 关于docker通信方式的redis集群
++ 分布式锁的实现
+
+## 1.1. 分布锁实现方案分析
+
+### 1.1.1. redis分布式锁的使用场景
 * 分布式锁是什么
 
 * * 分布式锁是控制分布式系统或不同系统之间共同访问共享资源的一种锁实现
@@ -29,7 +48,7 @@
 
 
 
-### 面试分享高频大厂面试题之分布式系统高可用
+### 1.1.2. 面试分享高频大厂面试题之分布式系统高可用
 
 **redis高可用的探索，剖析高可用解决方案**
 
@@ -70,13 +89,27 @@
 
 
 
-### 灾备切换Sentinel的使用
+### 1.1.3. 灾备切换Sentinel的使用
 
 **简介：互联网服务灾备故障转移，sentinel的配置**
 
-[docker搭建redis集群](https://blog.csdn.net/qq_28804275/article/details/80907796)
+#### 1.1.3.1. docker搭建redis主从集群
+[docker搭建redis主从集群](https://blog.csdn.net/qq_28804275/article/details/80907796)  
+[容器之间软连接通信](https://www.9ge6.com/archives/392.html)  
+[容器之间的四种通信方式](https://www.cnkirito.moe/docker-network-bridge/)  
+[link的底层原理](https://www.jianshu.com/p/21d66ca6115e)  
+改进点:
++ redis.conf的protected mode 关闭,不然会导致spring boot 访问失败
++ 同一主机的docker容器间的访问(redis里面设置127.0.0.1 会识别成自己容器内的网址,而不是宿主机的网址),创建slave容器的时候应该是`docker run --link redis-master:redis-master  -it --name redis-slave -v /root/:/usr/local/etc/redis -d -p 6301:6379 redis /bin/bash`,使用--link就可以使主从容器之间  
++  redis-slave.conf 里面的slaveof masterport使用master容器内部port 6379即可,不要用绑定到外部的port  
 
-[docker搭建redis-sentinel集群](https://cloud.tencent.com/developer/article/1343834)
+#### 1.1.3.2. docker 搭建redis-sentinel集群
+[docker搭建redis-sentinel集群](https://cloud.tencent.com/developer/article/1343834)  
+改进点: 
++ 运行sentinel的时候把26000端口暴露出来,以供外界访问  
+docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/local/etc/redis/ -d  redis:4.0 /bin/bash
+
++ 自定义sentinel.conf的时候, master ip不要写localhost或者127.0.0.1 ; 而是要写服务器所在局域网的ip,比如 192.168.245.4;这样spring boot 通过sentinel连接redis节点的时候,就不会出现连接127.0.0.1:6300而找不到redis节点.
 
 * `Redis`主从复制可将主节点数据同步给从节点，从节点此时有两个作用：
 
@@ -128,7 +161,7 @@
 
 
 
-### 互联网高可用灾备以及Sentinel三大任务讲解
+### 1.1.4. 互联网高可用灾备以及Sentinel三大任务讲解
 
 **简介：互联网冷备和热备讲解，Sentinel是怎么工作的？Sentinel三大工作任务是什么？**
 
@@ -164,7 +197,7 @@
       * 因难于维护，所以要非凡仔细小心
 
 
-###    Redis高可用Sentinel故障转移原理
+### 1.1.5. Redis高可用Sentinel故障转移原理
 
 **简介：Sentinel是怎么工作的？**
 

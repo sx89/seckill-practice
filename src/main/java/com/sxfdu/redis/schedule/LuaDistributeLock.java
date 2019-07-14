@@ -35,7 +35,7 @@ public class LuaDistributeLock {
     private static final String LOCK_PREFIX = "lua_prefix";
     private DefaultRedisScript<Boolean> lockScript;
 
-    @Scheduled(cron = "0/10 * * * * *")
+//    @Scheduled(cron = "0/10 * * * * *")
     public void luaLockJob() {
 
         String jobName = LOCK_PREFIX + "LockNxExJob";

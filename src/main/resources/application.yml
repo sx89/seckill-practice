@@ -24,6 +24,11 @@ spring:
       druidLoginName: wjf # 登录druid的账号
       druidPassword: wjf # 登录druid的密码
       cachePrepStmts: true  # 开启二级缓存
+      #配置sentinel的地址即可,因为sentinel是监视所有redis节点的,springboot就可以通过sentinel访问到其他redis节点
+   redis:
+      sentinel:
+         master: mymaster
+         nodes: 192.168.245.5:26000
 mybatis:
    typeAliasesPackage: com.sxfdu.redis.mapper
    mapperLocations: classpath:/com/sxfdu/redis/mapper/*.xml
