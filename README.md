@@ -1,15 +1,22 @@
 <!-- TOC -->
 
 - [1. seckill-practice](#1-seckill-practice)
-  - [1.1. 分布锁实现方案分析](#11-%E5%88%86%E5%B8%83%E9%94%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90)
-    - [1.1.1. redis分布式锁的使用场景](#111-redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF)
-    - [1.1.2. 面试分享高频大厂面试题之分布式系统高可用](#112-%E9%9D%A2%E8%AF%95%E5%88%86%E4%BA%AB%E9%AB%98%E9%A2%91%E5%A4%A7%E5%8E%82%E9%9D%A2%E8%AF%95%E9%A2%98%E4%B9%8B%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E9%AB%98%E5%8F%AF%E7%94%A8)
-  - [- 重启服务，看服务是否每次都获取锁失败](#%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%E7%9C%8B%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E6%AF%8F%E6%AC%A1%E9%83%BD%E8%8E%B7%E5%8F%96%E9%94%81%E5%A4%B1%E8%B4%A5)
-    - [1.1.3. 灾备切换Sentinel的使用](#113-%E7%81%BE%E5%A4%87%E5%88%87%E6%8D%A2Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8)
-      - [1.1.3.1. docker搭建redis主从集群](#1131-docker%E6%90%AD%E5%BB%BAredis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4)
-      - [1.1.3.2. docker 搭建redis-sentinel集群](#1132-docker-%E6%90%AD%E5%BB%BAredis-sentinel%E9%9B%86%E7%BE%A4)
-    - [1.1.4. 互联网高可用灾备以及Sentinel三大任务讲解](#114-%E4%BA%92%E8%81%94%E7%BD%91%E9%AB%98%E5%8F%AF%E7%94%A8%E7%81%BE%E5%A4%87%E4%BB%A5%E5%8F%8ASentinel%E4%B8%89%E5%A4%A7%E4%BB%BB%E5%8A%A1%E8%AE%B2%E8%A7%A3)
-    - [1.1.5. Redis高可用Sentinel故障转移原理](#115-Redis%E9%AB%98%E5%8F%AF%E7%94%A8Sentinel%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E5%8E%9F%E7%90%86)
+    - [1.1. 分布锁实现方案分析](#11-分布锁实现方案分析)
+        - [1.1.1. redis分布式锁的使用场景](#111-redis分布式锁的使用场景)
+        - [1.1.2. 面试分享高频大厂面试题之分布式系统高可用](#112-面试分享高频大厂面试题之分布式系统高可用)
+        - [1.1.3. 灾备切换Sentinel的使用](#113-灾备切换sentinel的使用)
+            - [1.1.3.1. docker搭建redis主从集群](#1131-docker搭建redis主从集群)
+            - [1.1.3.2. docker 搭建redis-sentinel集群](#1132-docker-搭建redis-sentinel集群)
+        - [sentinel简介](#sentinel简介)
+        - [1.1.4. 互联网高可用灾备以及Sentinel三大任务讲解](#114-互联网高可用灾备以及sentinel三大任务讲解)
+        - [1.1.5. Redis高可用Sentinel故障转移原理](#115-redis高可用sentinel故障转移原理)
+        - [Redis集群不得不说的这点事](#redis集群不得不说的这点事)
+- [附加:](#附加)
+    - [Redis集群搭建](#redis集群搭建)
+        - [Redis集群分片重哈希](#redis集群分片重哈希)
+        - [Redis集群整合Springboot实战](#redis集群整合springboot实战)
+        - [一致性Hash算法](#一致性hash算法)
+        - [一致性Hash算法虚拟节点](#一致性hash算法虚拟节点)
 
 <!-- /TOC -->
 
@@ -111,6 +118,8 @@ docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/
 
 + 自定义sentinel.conf的时候, master ip不要写localhost或者127.0.0.1 ; 而是要写服务器所在局域网的ip,比如 192.168.245.4;这样spring boot 通过sentinel连接redis节点的时候,就不会出现连接127.0.0.1:6300而找不到redis节点.
 
+### sentinel简介
+
 * `Redis`主从复制可将主节点数据同步给从节点，从节点此时有两个作用：
 
   - 一旦主节点宕机，从节点作为主节点的备份可以随时顶上来。
@@ -158,6 +167,7 @@ docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/
 - info Replication  查看节点信息
 
 - shutdown主节点看服务是否正常
+
 
 
 
@@ -231,3 +241,342 @@ docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/
 
     * 客观下线条件只适用于主服务器： 对于任何其他类型的 Redis 实例， Sentinel 在将它们判断为下线前不需要进行协商， 所以从服务器或者其他 Sentinel 永远不会达到客观下线条件。 
     * 只要一个 Sentinel 发现某个主服务器进入了客观下线状态， 这个 Sentinel 就可能会被其他 Sentinel 推选出， 并对失效的主服务器执行自动故障迁移操作。
+
+
+
+
+###   Redis集群不得不说的这点事
+
+**简介：Redis集群特点介绍**
+
+- Redis 集群的数据分片
+
+  * 概念：Redis 集群有16384个哈希槽,每个key通过CRC16校验后对16384取模来决定放置哪个槽.集群的每个节点负责一部分hash槽,
+
+  * 举个例子,比如当前集群有3个节点,那么: 
+    * 节点 A 约包含 0 到 5500号哈希槽.
+    * 节点 B 约包含5501 到 11000 号哈希槽.
+    * 节点 C 约包含11001 到 16384号哈希槽.  
+  * 查看集群信息redis-cli -p 7000 cluster nodes | grep master
+    * 这种结构很容易添加或者删除节点. 比如如果我想新添加个节点D, 我需要从节点 A, B, C中得部分槽到D上. 如果我想移除节点A,需要将A中的槽移到B和C节点上,然后将没有任何槽的A节点从集群中移除即可. 由于从一个节点将哈希槽移动到另一个节点并不会停止服务,所以无论添加删除或者改变某个节点的哈希槽的数量都不会造成集群不可用的状态.
+
+
+    ![](pic/Snipaste_2019-07-14_18-02-07.jpg)
+
+  - 从Redis宕机讲解分布式锁执行的异常场景流程
+
+  - 从Server服务宕机讲解分布式锁执行的异常场景流程
+
+    
+
+- Redis 集群的主从复制模型(**异步复制**)
+
+  
+
+  - 为了使在部分节点失败或者大部分节点无法通信的情况下集群仍然可用，所以集群使用了主从复制模型,每个节点都会有N-1个复制品.  在我们例子中具有A，B，C三个节点的集群,在没有复制模型的情况下,如果节点B失败了，那么整个集群就会以为缺少5501-11000这个范围的槽而不可用.Redis集群做主从备份解决了这个问题  
+
+    
+
+- Redis 一致性保证  
+
+  - 主节点对命令的复制工作发生在返回命令回复之后， 因为如果每次处理命令请求都需要等待复制操作完成的话， 那么主节点处理命令请求的速度将极大地降低 —— 我们必须在性能和一致性之间做出权衡。 注意：Redis 集群可能会在将来提供同步写的方法。 Redis 集群另外一种可能会丢失命令的情况是集群出现了网络分区， 并且一个客户端与至少包括一个主节点在内的少数实例被孤立。
+
+    
+
+- 手把手测试故障转移
+
+  ```shell
+  redis-cli -p 7000 debug segfault
+  redis-cli -p 7001 cluster nodes | grep master
+
+
+
+
+# 附加:
+##   Redis集群搭建
+
+**简介：Redis集群搭建实战**
+
+- 安装redis
+
+  * 处理步骤
+
+  ```shell
+  cd /usr/local/
+  wget http://download.redis.io/releases/redis-4.0.6.tar.gz
+  tar -zxvf redis-4.0.6.tar.gz
+  cd redis-4.0.6
+  make && make install
+  ```
+
+  
+
+- 新建集群文件夹
+
+  
+
+  - 处理步骤
+
+    ```shell
+    cd /usr/local/
+    mkdir redis_cluster
+    cd redis_cluster
+    mkdir 7000 7001 7002 7003 7004 7005
+    cp /usr/local/redis-4.0.6/redis.conf  /usr/local/redis_cluster/7000  
+    ```
+
+    
+
+
+
+- 修改redis_cluster/7000到redis_cluster/7005文件夹下面的Redis.conf
+
+  *  处理步骤
+
+```shell
+daemonize    yes                          //redis后台运行
+port  7000                                //端口7000,7002,7003
+cluster-enabled  yes                      //开启集群  把注释#去掉
+cluster-config-file  nodes.conf      //集群的配置  配置文件首次启动自动生成 7000,7001,7002
+cluster-node-timeout  5000                //请求超时  设置5秒够了
+appendonly  yes                           //aof日志开启  有需要就开启，它会每次写操作都记录一条日志
+bind 127.0.0.1 172.16.244.144(此处为自己内网的ip地址，centos7下面采用ip addr来查看，其他系统试一下ifconfig查看，ip为)
+
+```
+
+
+
+- 在其他节点也修改完Redis.conf
+
+  ​     
+
+  * 处理步骤    
+
+  ```shell
+  cp /usr/local/redis_cluster/7000/redis.conf /usr/local/redis_cluster/7001
+  cp /usr/local/redis_cluster/7000/redis.conf /usr/local/redis_cluster/7002
+  cp /usr/local/redis_cluster/7000/redis.conf /usr/local/redis_cluster/7003
+  cp /usr/local/redis_cluster/7000/redis.conf /usr/local/redis_cluster/7004
+  cp /usr/local/redis_cluster/7000/redis.conf /usr/local/redis_cluster/7005
+  
+  ```
+
+
+
+
+- 启动所有redis节点cd redis-server所在的路径
+
+    * 处理步骤
+
+    ```shell
+    cp /usr/local/redis-4.0.6/src/redis-server /usr/local/ redis-cluster
+    
+    cd /usr/local/redis_cluster/7000 ../redis-server ./redis.conf
+            
+    cd /usr/local/redis-cluster/7001 ../redis-server ./redis.conf
+            
+    cd /usr/local/redis-cluster/7002 ../redis-server ./redis.conf
+     
+    cd /usr/local/redis-cluster/7003 ../redis-server ./redis.conf
+            
+    cd /usr/local/redis-cluster/7004 ../redis-server ./redis.conf
+     
+    cd /usr/local/redis-cluster/7005 ../redis-server ./redis.conf
+    ```
+
+     
+
+- 创建集群
+
+  * 前面已经准备好了搭建集群的redis节点，接下来我们要把这些节点都串连起来搭建集群。官方提供了一个工具：redis-trib.rb(/usr/local/redis-4.0.6/src/redis-trib.rb) 看后缀就知道这鸟东西不能直接执 行，它是用ruby写的一个程序，所以我们还得安装ruby.
+
+  ```shell
+    yum -y install ruby ruby-devel rubygems rpm-build 
+             
+    gem install redis
+  ```
+
+
+  ​     
+
+- 如果gem install redis发现报错
+
+    ```shell
+    curl -L get.rvm.io | bash -s stable 
+    
+    source /usr/local/rvm/scripts/rvm
+    
+    rvm list known
+    
+    rvm install 2.3.3
+    
+    rvm use 2.3.3
+    
+    ruby --version
+    
+    gem install redis
+    ```
+
+
+​         
+
+- 开启集群工作 
+
+     ```shell
+     cd /usr/local/redis-4.0.6/src
+     ./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 \
+           127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+     
+     ```
+
+- 测试集群是否正常
+
+     ```
+     ./redis-cli -c -p 7000 
+     ```
+
+- 如果搭建失败，请用此命令将所有启动的redis server一个个关闭掉
+
+     ```
+     ./redis-cli -p 7000 shutdown
+     ```
+
+
+###  Redis集群分片重哈希
+
+**简介：玩转Redis集群节点分片重哈希**
+
+- 采用SSH连接远程服务器
+
+  - ssh命令安装过程：https://blog.csdn.net/DanielAntony/article/details/87997574
+
+    
+
+- 集群重新分片
+
+     手动处理solt节点槽重新分片
+
+  - ./redis-trib.rb reshard 127.0.0.1:7000
+  - 你想移动多少个槽( 从1 到 16384)?  all
+
+
+
+- 添加一个新的主节点
+
+     
+
+  ```
+  ./redis-trib.rb add-node 127.0.0.1:7006 127.0.0.1:7000
+  ```
+
+  
+
+- 添加一个新的从节点
+
+  ```
+  ./redis-trib.rb add-node --slave 127.0.0.1:7006 127.0.0.1:7000
+  ```
+
+  
+
+- 移除一个节点
+
+   ./redis-trib.rb del-node 127.0.0.1:7000 `<node-id>`
+    第一个参数是任意一个节点的地址,第二个节点是你想要移除的节点地址。
+
+  * 移除主节点【先确保节点里面没有slot】
+    * 使用同样的方法移除主节点,不过在移除主节点前，需要确保这个主节点是空的. 如果不是空的,需要将这个节点的数据重新分片到其他主节点上.
+    * 替代移除主节点的方法是手动执行故障恢复，被移除的主节点会作为一个从节点存在，不过这种情况下不会减少集群节点的数量，也需要重新分片数据.
+
+  * 移除从节点  直接移除成功
+
+
+
+### Redis集群整合Springboot实战
+
+**简介：Redis集群整合springboot讲解**
+
+- 介绍
+
+  - 大多数用户可能会使用RedisTemplate它及其相应的包org.springframework.data.redis.core- 由于其丰富的功能集，该模板实际上是Redis模块的中心类。该模板为Redis交互提供了高级抽象。虽然RedisConnection提供了接受和返回二进制值（byte数组）的低级方法，但模板负责序列化和连接管理，使用户无需处理这些细节。
+
+    
+
+- 引入spring-data-redis pom依赖  
+
+  ```java
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+  </dependency>
+  ```
+
+  
+
+
+- 引入redistemplate
+
+  * 引入bean redisTemplate的使用，类型于：monogoTemplate、jdbcTemplate数据库连接工具
+  * 编写redisTemplate类，设置redisConnectFactory
+
+  
+
+- 配置yml配置文件
+
+![](pic/Snipaste_2019-07-14_19-57-44.jpg)
+
+
+
+###  一致性Hash算法
+
+**简介：一起来进行Redis集群探索**
+
+  2的32次方进行hash取模     0到2的32次方-1
+
+- jedis分布式之 ShardedJedisPool （一致性Hash分片算法）
+
+- 概念：
+
+    分布式系统中负载均衡的问题时候可以使用Hash算法让固定的一部分请求落到同一台服务器上，这样每台服务器固定处理一部分请求（并维护这些请求的信息），起到负载均衡的作用
+
+- 做法：
+
+![](pic/分布式一致性HASH算法.jpg)
+
+  * hash环上顺时针从整数0开始，一直到最大正整数，我们根据四个ip计算的hash值肯定会落到这个hash环上的某一个点，至此我们把服务器的四个ip映射到了一致性hash环
+  * 当用户在客户端进行请求时候，首先根据hash(用户id)计算路由规则（hash值），然后看hash值落到了hash环的那个地方，根据hash值在hash环上的位置顺时针找距离最近的ip作为路由ip
+  * 当用户在客户端进行请求时候，首先根据hash(用户id)计算路由规则（hash值），然后看hash值落到了hash环的那个地方，根据hash值在hash环上的位置顺时针找距离最近的ip作为路由ip.
+
+
+-    一致性hash的特性
+
+  * 单调性(Monotonicity)，单调性是指如果已经有一些请求通过哈希分派到了相应的服务器进行处理，又有新的服务器加入到系统中时候，应保证原有的请求可以被映射到原有的或者新的服务器中去，而不会被映射到原来的其它服务器上去。 
+
+  * 分散性(Spread)：分布式环境中，客户端请求时候可能不知道所有服务器的存在，可能只知道其中一部分服务器，在客户端看来他看到的部分服务器会形成一个完整的hash环。如果多个客户端都把部分服务器作为一个完整hash环，那么可能会导致，同一个用户的请求被路由到不同的服务器进行处理。这种情况显然是应该避免的，因为它不能保证同一个用户的请求落到同一个服务器。所谓分散性是指上述情况发生的严重程度。好的哈希算法应尽量避免尽量降低分散性。 一致性hash具有很低的分散性
+
+  * 平衡性(Balance)：平衡性也就是说负载均衡，是指客户端hash后的请求应该能够分散到不同的服务器上去。一致性hash可以做到每个服务器都进行处理请求，但是不能保证每个服务器处理的请求的数量大致相同
+
+- 虚拟节点
+
+
+
+### 一致性Hash算法虚拟节点
+
+**简介：通过虚拟节点倾斜解决方案，均匀一致性hash**
+
+- 出现问题分析：
+
+  ​    部门hash节点下架之后，虽然剩余机器都在处理请求，但是明显每个机器的负载不均衡，这样称为一致性hash的倾斜，虚拟节点的出现就是为了解决这个问题。
+
+  
+
+- 增设虚拟节点
+
+     当物理机器数目为A，虚拟节点为B的时候，实际hash环上节点个数为A*B，将A节点分部为A1,A2,A3;将A1、A2、A3平均分布在各个位置，使A服务的节点尽量均匀分配在各个角落  
+  **使用虚拟节点之前**
+  ![](pic/Snipaste_2019-07-14_20-24-57.jpg)
+**使用虚拟节点之后**
+![](pic/Snipaste_2019-07-14_20-32-13.jpg)
+- 每台服务器负载相对均衡
+
+    当某个节点挂了之后，其数据均衡的分布给相邻的顺时针后面的一个节点上面，故所有数据比之前所述一致性hash相对均衡
