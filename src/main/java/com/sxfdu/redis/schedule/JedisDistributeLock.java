@@ -32,7 +32,7 @@ public class JedisDistributeLock {
 
     private final Logger logger = LoggerFactory.getLogger(JedisDistributeLock.class);
 
-    private static String LOCK_PREFIX = "JedisDistributedLock_";
+    private static final String LOCK_PREFIX = "JedisDistributedLock_";
 
     private DefaultRedisScript<Boolean> lockScript;
 
@@ -70,7 +70,7 @@ public class JedisDistributeLock {
                 String value = (String) redisService.getValue(lock);
                 //打印当前占用锁的服务器IP
                 logger.info("jedisLockJob get lock fail,lock belong to:{}", value);
-                return;
+                return ;
             } else {
                 //获取锁成功
                 logger.info("jedisLockJob start  lock lockNxExJob success");

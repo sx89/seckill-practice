@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
  * @date 19/7/4/004 21:19
  */
 @Service
-
 public class RedisService {
     private static double size = Math.pow(2, 32);
     @Autowired
