@@ -53,11 +53,14 @@
 		<!--<table tableName="user_score">-->
 			<!--<generatedKey column="id" sqlStatement="JDBC"/>-->
 		<!--</table>-->
-		<table tableName="red_packet_info">
-			<generatedKey column="id" sqlStatement="JDBC"/>
-		</table>
+		<!--<table tableName="red_packet_info">-->
+			<!--<generatedKey column="id" sqlStatement="JDBC"/>-->
+		<!--</table>-->
 
-		<table tableName="red_packet_record">
+		<!--<table tableName="red_packet_record">-->
+			<!--<generatedKey column="id" sqlStatement="JDBC"/>-->
+		<!--</table>-->
+		<table tableName="sys_user_bloom">
 			<generatedKey column="id" sqlStatement="JDBC"/>
 		</table>
 

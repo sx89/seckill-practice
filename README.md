@@ -69,7 +69,9 @@
 秒杀项目实战  
 
 
-项目简介:  
+项目简介: 
+抢红包项目
+ 
 TODO
 
 
@@ -668,7 +670,7 @@ docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/
 
 
 ### 灾备切换Sentinel的使用
-
+**sentinel是为了主从之间的自动切换(自动高可用),cluster用于分散hash负载均衡**
 **简介：互联网服务灾备故障转移，sentinel的配置**
 
 * `Redis`主从复制可将主节点数据同步给从节点，从节点此时有两个作用：
@@ -733,6 +735,7 @@ docker run -it --name redis-sentienl0container `-p 26000:26000 ` -v /root/:/usr/
   - 监控（Monitoring）： Sentinel 会不断地检查你的主服务器和从服务器是否运作正常。
   - 提醒（Notification）： 当被监控的某个 Redis 服务器出现问题时， Sentinel 可以通过 API 向管理员或者其他应用程序发送通知。      
   - 自动故障迁移（Automatic failover）： 当一个主服务器不能正常工作时， Sentinel 会开始一次自动故障迁移操作， 它会将失效主服务器的其中一个从服务器升级为新的主服务器， 并让失效主服务器的其他从服务器改为复制新的主服务器； 当客户端试图连接失效的主服务器时， 集群也会向客户端返回新主服务器的地址， 使得集群可以使用新主服务器代替失效服务器。
+  - 可以当成一个反向代理服务器来用
     
 
 - 互联网冷备和热备讲解，冷备和热备的特点分析
@@ -938,7 +941,7 @@ bind 127.0.0.1 172.16.244.144(此处为自己内网的ip地址，centos7下面�
 
 - 创建集群
 
-  * 前面已经准备好了搭建集群的redis节点，接下来我们要把这些节点都串连起来搭建集群。官方提供了一个工具：redis-trib.rb(/usr/local/redis-4.0.6/src/redis-trib.rb) 看后缀就知道这鸟东西不能直接执 行，它是用ruby写的一个程序，所以我们还得安装ruby.
+  * 前面已经准备好了搭建集群的redis节点，接下来我们要把这些节点都串连起来搭建集群。官方提供了一个工具：redis-trib.rb(/usr/local/redis-4.0.6/src/redis-trib.rb) 看后缀就知道不能直接执 行，它是用ruby写的一个程序，所以我们还得安装ruby.
 
   ```shell
     yum -y install ruby ruby-devel rubygems rpm-build 
