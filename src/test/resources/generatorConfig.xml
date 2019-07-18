@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+	<context id="entmobile" targetRuntime="MyBatis3">
+
+		<plugin type="org.mybatis.generator.plugins.AddLimitOffsetPlugin" />
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+
+		<commentGenerator>
+			<property name="suppressDate" value="true" />
+			<!-- remove comments -->
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		 
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost:3306/test?serverTimezone=GMT&amp;useUnicode=true&amp;characterEncoding=UTF-8"
+			userId="root" password="111" />
+			
+		<!-- java type resolver -->
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<!-- gem entity -->
+		<!-- data -->
+		<javaModelGenerator targetPackage="com.sxfdu.redis.domain"
+			targetProject="./src/main/java">
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="false" />
+		</javaModelGenerator>
+		 
+		<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+		<!-- gem annotated mapper -->
+		<!-- data -->
+		<javaClientGenerator type="ANNOTATEDMAPPER"
+			targetPackage="com.sxfdu.redis.mapper"
+			targetProject="./src/main/java">
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+		
+		
+		<!--  
+		<table tableName="material_type">
+			<generatedKey column="id" sqlStatement="JDBC"/>
+		</table>
+		-->
+
+		<!--<table tableName="score_flow">-->
+			<!--<generatedKey column="id" sqlStatement="JDBC"/>-->
+		<!--</table>-->
+
+		<!--<table tableName="user_score">-->
+			<!--<generatedKey column="id" sqlStatement="JDBC"/>-->
+		<!--</table>-->
+		<table tableName="red_packet_info">
+			<generatedKey column="id" sqlStatement="JDBC"/>
+		</table>
+
+		<table tableName="red_packet_record">
+			<generatedKey column="id" sqlStatement="JDBC"/>
+		</table>
+
+	</context>
+</generatorConfiguration>
