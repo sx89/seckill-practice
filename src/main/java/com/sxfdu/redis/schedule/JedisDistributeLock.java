@@ -67,7 +67,7 @@ public class JedisDistributeLock {
 
             //获取锁失败
             if (!lockRet) {
-                String value = (String) redisService.getValue(lock);
+                String value = (String) redisService.get(lock);
                 //打印当前占用锁的服务器IP
                 logger.info("jedisLockJob get lock fail,lock belong to:{}", value);
                 return ;

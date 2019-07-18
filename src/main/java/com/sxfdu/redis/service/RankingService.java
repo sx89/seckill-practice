@@ -6,6 +6,7 @@ import com.sxfdu.redis.mapper.ScoreFlowMapper;
 import com.sxfdu.redis.mapper.UserMapper;
 import com.sxfdu.redis.mapper.UserScoreMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
@@ -49,8 +50,8 @@ public class RankingService {
     }
 
     public Long getScore(String uid) {
-        Double score = redisService.zGetScore(RANKING_NAME, uid);
-        return score.longValue();
+        //TODO
+        return null;
     }
 
     public Set<ZSetOperations.TypedTuple<Object>> rankWithScore(Integer start, Integer end) {

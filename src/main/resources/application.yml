@@ -25,26 +25,27 @@ spring:
       druidPassword: wjf # 登录druid的密码
       cachePrepStmts: true  # 开启二级缓存
       #配置sentinel的地址即可,因为sentinel是监视所有redis节点的,springboot就可以通过sentinel访问到其他redis节点
-   redis:
-      sentinel:
-         master: mymaster
-         nodes: 192.168.245.5:26000
-#redis集群的连接方式,
-#导入包,定义redistemplate,用下面的连接,其他跟普通用法相同
 #   redis:
-#          timeout: 6000ms
-#          password:
-#      #       host: 172.16.244.144
-#      #       port: 6379
-#          cluster:
-#            max-redirects: 3  # 获取失败 最大重定向次数 
-#            nodes: 172.16.244.144:7000,172.16.244.144:7001,172.16.244.144:7002,172.16.244.144:7003,172.16.244.144:7004,172.16.244.144:7005 
-#          lettuce:
-#            pool:
-#              max-active: 1000  #连接池最大连接数（使用负值表示没有限制）
-#              max-idle: 10 # 连接池中的最大空闲连接
-#              min-idle: 5 # 连接池中的最小空闲连接
-#              max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制
+  #      sentinel:
+  #         master: mymaster
+  #         nodes: 192.168.245.5:26000
+  #redis集群的连接方式,
+  #导入包,定义redistemplate,用下面的连接,其他跟普通用法相同
+
+   redis:
+     lettuce:
+       pool:
+         commandTimeout: 10000  #redis操作的超时时间
+         maxTotal: 5000 #最大连接数
+         maxIdle: 30 #最大空闲连接数
+         minIdle: 5 #最小空闲连接数
+         maxWait: 3000  #获取连接最大等待时间 ms  #default -1
+     cluster:
+       nodes: 192.168.245.5:7000,192.168.245.5:7001,192.168.245.5:7002,192.168.245.5:7003,192.168.245.5:7004,192.168.245.5:7005
+       max-redirects: 3
+     password:
+     timeout:
+
 mybatis:
    typeAliasesPackage: com.sxfdu.redis.mapper
    mapperLocations: classpath:/com/sxfdu/redis/mapper/*.xml

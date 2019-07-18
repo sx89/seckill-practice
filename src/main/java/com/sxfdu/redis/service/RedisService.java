@@ -10,24 +10,17 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 用来封装redistemplate
- *
- * @author sunxu93@163.com
- * @date 19/7/4/004 21:19
+ * Created by Administrator on 2018/10/6.
  */
 @Service
 public class RedisService {
-    private static double size = Math.pow(2, 32);
+
     @Autowired
     private RedisTemplate redisTemplate;
 
+    private static double size = Math.pow(2, 32);
 
-    public Object getValue(final String key) {
-        Object result = null;
-        ValueOperations<String, String> operations = redisTemplate.opsForValue();
-        result = operations.get(key);
-        return result;
-    }
+
     /**
      * 写入缓存
      *
@@ -85,6 +78,44 @@ public class RedisService {
         return result;
     }
 
+
+    /**
+     * 写入缓存
+     *
+     * @param key
+     * @return
+     */
+    public Object get(final String key) {
+        boolean result = false;
+        try {
+            ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+            return operations.get(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    /**
+     * 写入缓存
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean decr(final String key, int value) {
+        boolean result = false;
+        try {
+            ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+            operations.increment(key,-value);
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     /**
      * 写入缓存设置时效时间
      *
@@ -128,8 +159,6 @@ public class RedisService {
         }
     }
 
-
-
     /**
      * 判断缓存中是否有对应的value
      *
@@ -146,9 +175,9 @@ public class RedisService {
      * @param key
      * @return
      */
-    public Object get(final String key) {
+    public Object genValue(final String key) {
         Object result = null;
-        ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+        ValueOperations<String, String> operations = redisTemplate.opsForValue();
         result = operations.get(key);
         return result;
     }
@@ -294,7 +323,7 @@ public class RedisService {
      * @param key
      * @param value
      */
-    public Double zGetScore(String key, Object value) {
+    public Double zSetScore(String key, Object value) {
         ZSetOperations<String, Object> zset = redisTemplate.opsForZSet();
         return zset.score(key,value);
     }
