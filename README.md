@@ -85,9 +85,9 @@ TODO
 ### docker搭建redis主从集群
 [docker搭建redis主从集群](https://blog.csdn.net/qq_28804275/article/details/80907796)  
 [容器之间软连接通信](https://www.9ge6.com/archives/392.html)  
-[容器之间的四种通信方式](https://www.cnkirito.moe/docker-network-bridge/)  
-[link的底层原理](https://www.jianshu.com/p/21d66ca6115e) 
-
+[容器之间的四种通信方式](https://www.cnkirito.moe/docker-network-bridge/)   
+[link的底层原理](https://www.jianshu.com/p/21d66ca6115e)    
+查看docker所有容器的ip: `docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -aq)`   
 改进点:
 + redis.conf的protected mode 关闭,不然会导致spring boot 访问失败
 + 同一主机的docker容器间的访问(redis里面设置127.0.0.1 会识别成自己容器内的网址,而不是宿主机的网址),创建slave容器的时候应该是`docker run --link redis-master:redis-master  -it --name redis-slave -v /root/:/usr/local/etc/redis -d -p 6301:6379 redis /bin/bash`,使用--link就可以使主从容器之间  

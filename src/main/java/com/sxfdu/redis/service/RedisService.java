@@ -1,10 +1,15 @@
 package com.sxfdu.redis.service;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -362,6 +367,31 @@ public class RedisService {
         ZSetOperations<String, Object> zset = redisTemplate.opsForZSet();
         Set<ZSetOperations.TypedTuple<Object>> ret = zset.reverseRangeWithScores(key, start, end);
         return ret;
+    }
+
+    public static final String VIP_BLOOM = "vipBloom";
+
+    public  Boolean bloomFilterAdd(int value) {
+
+        DefaultRedisScript<Boolean> bloomAdd = new DefaultRedisScript<>();
+        bloomAdd.setScriptSource(new ResourceScriptSource(new ClassPathResource("bloomFilterAdd.lua")));
+        bloomAdd.setResultType(Boolean.class);
+        ArrayList<Object> keys = new ArrayList<>();
+        keys.add(VIP_BLOOM);
+        keys.add(value+"");
+        Object execute = redisTemplate.execute(bloomAdd, keys);
+        return (boolean)execute;
+    }
+
+    public Boolean bloomFilterExists(int value) {
+        DefaultRedisScript<Boolean> bloomExists = new DefaultRedisScript<>();
+        bloomExists.setResultType(Boolean.class);
+        bloomExists.setScriptSource(new ResourceScriptSource(new ClassPathResource("bloomFilterExists.lua")));
+        List<Object> keys = new ArrayList<>();
+        keys.add(VIP_BLOOM);
+        keys.add(value + "");
+        Boolean execute = (Boolean) redisTemplate.execute(bloomExists, keys);
+        return execute;
     }
 
 }
