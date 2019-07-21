@@ -1,6 +1,5 @@
 package com.sxfdu.redis.service;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.*;
@@ -9,6 +8,7 @@ import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -83,6 +83,23 @@ public class RedisService {
         return result;
     }
 
+    /**
+     * 写入缓存
+     *
+     * @param key
+     * @return
+     */
+    public boolean incr(final String key) {
+        boolean result = false;
+        try {
+            ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+            operations.increment(key,1);
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     /**
      * 写入缓存
@@ -382,7 +399,17 @@ public class RedisService {
         Object execute = redisTemplate.execute(bloomAdd, keys);
         return (boolean)execute;
     }
+    public  Boolean bloomFilterAdd(String key,int value) {
 
+        DefaultRedisScript<Boolean> bloomAdd = new DefaultRedisScript<>();
+        bloomAdd.setScriptSource(new ResourceScriptSource(new ClassPathResource("bloomFilterAdd.lua")));
+        bloomAdd.setResultType(Boolean.class);
+        ArrayList<Object> keys = new ArrayList<>();
+        keys.add(key);
+        keys.add(value+"");
+        Object execute = redisTemplate.execute(bloomAdd, keys);
+        return (boolean)execute;
+    }
     public Boolean bloomFilterExists(int value) {
         DefaultRedisScript<Boolean> bloomExists = new DefaultRedisScript<>();
         bloomExists.setResultType(Boolean.class);
@@ -390,6 +417,27 @@ public class RedisService {
         List<Object> keys = new ArrayList<>();
         keys.add(VIP_BLOOM);
         keys.add(value + "");
+        Boolean execute = (Boolean) redisTemplate.execute(bloomExists, keys);
+        return execute;
+    }
+
+
+    public Boolean bloomFilterExists(String key,int value) {
+        DefaultRedisScript<Boolean> bloomExists = new DefaultRedisScript<>();
+        bloomExists.setResultType(Boolean.class);
+        bloomExists.setScriptSource(new ResourceScriptSource(new ClassPathResource("bloomFilterExists.lua")));
+        List<Object> keys = new ArrayList<>();
+        keys.add(key);
+        keys.add(value + "");
+        Boolean execute = (Boolean) redisTemplate.execute(bloomExists, keys);
+        return execute;
+    }
+    public Boolean getAndIncrLua(String key) {
+        DefaultRedisScript<Boolean> bloomExists = new DefaultRedisScript<>();
+        bloomExists.setResultType(Boolean.class);
+        bloomExists.setScriptSource(new ResourceScriptSource(new ClassPathResource("GetAndIncr.lua")));
+        ArrayList<Object> keys = new ArrayList<>();
+        keys.add(key);
         Boolean execute = (Boolean) redisTemplate.execute(bloomExists, keys);
         return execute;
     }

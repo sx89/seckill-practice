@@ -5,11 +5,11 @@ import com.sxfdu.redis.domain.RedPacketRecord;
 import com.sxfdu.redis.mapper.RedPacketInfoMapper;
 import com.sxfdu.redis.mapper.RedPacketRecordMapper;
 import com.sxfdu.redis.service.RedisService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,7 +88,6 @@ public class RedPackageController {
 
         String key1 = redPackageId + TOTAL_AMOUNT;
         String remainAmout = redisService.get(key1).toString();
-
 
         if (StringUtils.isEmpty(remainNum) || Integer.parseInt(remainNum)<=0) {
             return "红包已经抢完了";
